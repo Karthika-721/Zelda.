@@ -18,4 +18,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Replace PROJECT_CARD_ID with the actual card ID for your project
-          gh project card-move --id PROJECT_CARD_ID --column "In Progress"
+          gh project card-move --id PVTI_lAHOCtxe684As1d5zgVB81s --column "In Progress"
