@@ -1,0 +1,21 @@
+name: Move Issues
+
+on:
+  issues:
+    types:
+      - assigned
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  move-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Move Issue to 'In Progress'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Replace PROJECT_CARD_ID with the actual card ID for your project
+          gh project card-move --id PROJECT_CARD_ID --column "In Progress"
