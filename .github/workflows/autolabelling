@@ -1,37 +1,41 @@
-name: Auto Label Issues
-
+name: Issue Tracker Automation
 on:
-  issue_comment:
+  issue_Description:
     types: [created]
 
 jobs:
-  auto-label:
+  auto-label-issue:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Clone Repository
         uses: actions/checkout@v2
 
       - name: Authenticate GitHub CLI
         run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
-      - name: Check if the comment contains specific keywords and label the issue
+      - name: Verify Authentication
+        run: gh auth status
+
+      - name: Add 'bug' Label if Description Contains 'bug'
+        if: contains(github.event.comment.body, 'bug')
         run: |
-          # Get the issue number and the comment body
-          ISSUE_NUMBER=${{ github.event.issue.number }}
-          COMMENT_BODY="${{ github.event.comment.body }}"
+          echo "Labeling issue as bug"
+          gh issue edit ${{ github.event.issue.number }} --add-label "bug"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-          # Set labels to be applied based on comment content
-          if [[ "$COMMENT_BODY" =~ \bbug\b ]]; then
-            gh issue edit $ISSUE_NUMBER --add-label "bug"
-          fi
+      - name: Add 'documentation' Label if Description Contains 'documentation'
+        if: contains(github.event.comment.body, 'documentation')
+        run: |
+          echo "Labeling issue as documentation"
+          gh issue edit ${{ github.event.issue.number }} --add-label "documentation"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-          if [[ "$COMMENT_BODY" =~ \bdocumentation\b ]]; then
-            gh issue edit $ISSUE_NUMBER --add-label "documentation"
-          fi
-
-          if [[ "$COMMENT_BODY" =~ \benhancement\b ]]; then
-            gh issue edit $ISSUE_NUMBER --add-label "enhancement"
-          fi
-
+      - name: Add 'enhancement' Label if Description Contains 'enhancement'
+        if: contains(github.event.comment.body, 'enhancement')
+        run: |
+          echo "Labeling issue as enhancement"
+          gh issue edit ${{ github.event.issue.number }} --add-label "enhancement"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
