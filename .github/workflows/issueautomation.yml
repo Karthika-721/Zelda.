@@ -54,37 +54,37 @@ jobs:
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_OUTPUT
      
-      - name: Get Option ID 2
-        id: get_inprogress_option_id1
+      - name: Get Option ID for In Progress
+        id: get_inprogress_option_id
         run: |
           INPROGRESS_OPTION_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="In progress") | .id')
           echo "INPROGRESS_OPTION_ID=${INPROGRESS_OPTION_ID}" >> $GITHUB_ENV
           echo "INPROGRESS_OPTION_ID=${INPROGRESS_OPTION_ID}" >> $GITHUB_OUTPUT
      
-      - name: Get Option ID 2
-        id: get_option_id2
+      - name: Get Option ID for Done
+        id: get_done_option_id
         run: |
           DONE_OPTION_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="Done") | .id')
           echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_ENV
           echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_OUTPUT
-         
- 
+
   move-issue:
     runs-on: ubuntu-latest
     needs: get-issue-parameters
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Move Issue to In-Progress
-  if: contains(github.event.comment.body, 'progress')
-  run: |
-    echo "Checking current status of the issue..."
-    CURRENT_STATUS=$(gh project item-list --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --format json | jq -r '.items[] | .status')
-    if [[ "$CURRENT_STATUS" != "In Progress" ]]; then
-      echo "Moving to In-Progress"
-    gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.INPROGRESS_OPTION_ID}} || true
-    else
-      echo "Issue is already in 'In Progress' state. No changes needed."
-  env:
-    GH_TOKEN: ${{ github.token }}
-    GH_REPO: ${{ github.repository }}	  
+        if: contains(github.event.comment.body, 'progress')
+        run: |
+          echo "Checking current status of the issue..."
+          CURRENT_STATUS=$(gh project item-list --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --format json | jq -r '.items[] | .status')
+          if [[ "$CURRENT_STATUS" != "In Progress" ]]; then
+            echo "Moving to In-Progress"
+            gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.INPROGRESS_OPTION_ID}}
+          else
+            echo "Issue is already in 'In Progress' state. No changes needed."
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
