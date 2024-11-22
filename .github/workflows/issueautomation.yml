@@ -67,8 +67,6 @@ get-issue-parameters:
         DONE_OPTION_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="Done") | .id')
          echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_ENV
          echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_OUTPUT
-        
- 
  move-issue:
    runs-on: ubuntu-latest
    needs: get-issue-parameters
