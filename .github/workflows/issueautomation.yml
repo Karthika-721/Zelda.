@@ -85,7 +85,12 @@ jobs:
     gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.INPROGRESS_OPTION_ID}} || true
     else
       echo "Issue is already in 'In Progress' state. No changes needed."
-    fi
   env:
     GH_TOKEN: ${{ github.token }}
     GH_REPO: ${{ github.repository }}
+	
+		  
+		  
+
+
+
