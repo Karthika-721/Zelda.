@@ -75,8 +75,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
- 
-    		 - name: Move Issue to In-Progress
+      - name: Move Issue to In-Progress
   if: contains(github.event.comment.body, 'progress')
   run: |
     echo "Checking current status of the issue..."
@@ -90,9 +89,3 @@ jobs:
   env:
     GH_TOKEN: ${{ github.token }}
     GH_REPO: ${{ github.repository }}
-	
-		  
-		  
-
-
-
