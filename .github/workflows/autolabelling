@@ -2,7 +2,7 @@ name: Auto-Label Issues Based on Description
 
 on:
   issues:
-    types: [opened]  # Trigger the workflow when a new issue is created
+    types: [opened]  # Trigger on new issue creation
 
 jobs:
   auto-label:
@@ -13,11 +13,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            // Extract issue description
-            const issueBody = context.payload.issue.body.toLowerCase();
+            const issueBody = context.payload.issue.body?.toLowerCase() || "";
             const labelsToAdd = [];
 
-            // Add labels based on keywords in the description
+            // Check for keywords and add corresponding labels
             if (issueBody.includes('bug')) {
               labelsToAdd.push('bug');
             }
@@ -28,6 +27,9 @@ jobs:
               labelsToAdd.push('documentation');
             }
 
+            console.log("Issue Body:", issueBody);
+            console.log("Labels to Add:", labelsToAdd);
+
             // Add labels if any match
             if (labelsToAdd.length > 0) {
               await github.rest.issues.addLabels({
@@ -36,4 +38,7 @@ jobs:
                 issue_number: context.issue.number,
                 labels: labelsToAdd
               });
+              console.log("Labels added successfully:", labelsToAdd);
+            } else {
+              console.log("No matching labels found.");
             }
