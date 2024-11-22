@@ -34,11 +34,10 @@ jobs:
       - name: Get Project ID
         id: get_project_id
         run: |
-          echo "Fetching project ID..."
-          PROJECT_ID=$(gh project list --owner "@me" --format json | jq -r '.[] | select(.title=="test workflow") | .id')
-          echo "PROJECT_ID=${PROJECT_ID}"
-          echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
-          echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_OUTPUT
+          echo "Fetching project number..."
+          PROJECT_NUMBER=$(gh project list --owner "@me" --format json | jq -r '.projects[] | select(.title=="test workflow") | .number')
+          echo "PROJECT_NUMBER=${PROJECT_NUMBER}"
+          echo "PROJECT_NUMBER=${PROJECT_NUMBER}" >> $GITHUB_ENV
 
       - name: Get Issue URL
         id: get_issue_url
