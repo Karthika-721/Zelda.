@@ -1,93 +1,93 @@
-name: Issue Management
+name: Issue Tracker Automation
 on:
   issue_comment:
     types: [created]
 
 jobs:
-  get-issue-parameters:
+  extract-parameters:
     runs-on: ubuntu-latest
     outputs:
-      ISSUE_ID: ${{ steps.get_issue_id.outputs.ISSUE_ID }}
-      PROJECT_ID: ${{ steps.get_project_id.outputs.PROJECT_ID }}
-      FIELD_ID: ${{ steps.get_field_id.outputs.FIELD_ID }}
-      OPTION_ID1: ${{ steps.get_option_id1.outputs.INPROGRESS_OPTION_ID }}
-      OPTION_ID2: ${{ steps.get_option_id2.outputs.DONE_OPTION_ID }}
+      ISSUE_ID: ${{ steps.extract_issue_id.outputs.ISSUE_ID }}
+      PROJECT_ID: ${{ steps.extract_project_id.outputs.PROJECT_ID }}
+      FIELD_ID: ${{ steps.extract_field_id.outputs.FIELD_ID }}
+      OPTION_IN_PROGRESS: ${{ steps.extract_option_in_progress.outputs.OPTION_IN_PROGRESS_ID }}
+      OPTION_DONE: ${{ steps.extract_option_done.outputs.OPTION_DONE_ID }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
+      - name: Clone Repository
+        uses: actions/checkout@v2
 
       - name: Authenticate GitHub CLI
         run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
-      - name: Check GitHub CLI Authentication
+      - name: Verify Authentication
         run: gh auth status
 
-      - name: Get Project Number
-        id: get_project
+      - name: Retrieve Project Number
+        id: retrieve_project_number
         run: |
           PROJECT_NUMBER=$(gh project list --format json | jq -r '.projects[] | select(.title=="test workflow") | .number')
           echo "PROJECT_NUMBER=${PROJECT_NUMBER}" >> $GITHUB_ENV
 
-      - name: Get Issue URL
-        id: get_issue_url
+      - name: Retrieve Issue URL
+        id: retrieve_issue_url
         run: |
           ISSUE_URL=$(gh issue view "${{ github.event.issue.number }}" --json url | jq -r '.url')
           echo "ISSUE_URL=${ISSUE_URL}" >> $GITHUB_ENV
 
-      - name: Get Issue ID
-        id: get_issue_id
+      - name: Retrieve Issue ID
+        id: extract_issue_id
         run: |
-          ISSUE_ID=$(gh project item-list ${{env.PROJECT_NUMBER}} --owner '@me' --format json | jq -r '.items[] | select(.content.number==${{ github.event.issue.number }}) | .id')
+          ISSUE_ID=$(gh project item-list ${{ env.PROJECT_NUMBER }} --owner '@me' --format json | jq -r '.items[] | select(.content.number==${{ github.event.issue.number }}) | .id')
           echo "ISSUE_ID=${ISSUE_ID}" >> $GITHUB_ENV
           echo "ISSUE_ID=${ISSUE_ID}" >> $GITHUB_OUTPUT
 
-      - name: Get Field ID
-        id: get_field_id
+      - name: Retrieve Field ID
+        id: extract_field_id
         run: |
-          FIELD_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .id')
+          FIELD_ID=$(gh project field-list ${{ env.PROJECT_NUMBER }} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .id')
           echo "FIELD_ID=${FIELD_ID}" >> $GITHUB_ENV
           echo "FIELD_ID=${FIELD_ID}" >> $GITHUB_OUTPUT
 
-      - name: Get Project ID
-        id: get_project_id
+      - name: Retrieve Project ID
+        id: extract_project_id
         run: |
           PROJECT_ID=$(gh project list --format json | jq -r '.projects[] | select(.title=="test workflow") | .id')
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_OUTPUT
 
-      - name: Get Option ID 1
-        id: get_option_id1
+      - name: Retrieve 'In Progress' Option ID
+        id: extract_option_in_progress
         run: |
-          INPROGRESS_OPTION_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="In progress") | .id')
-          echo "INPROGRESS_OPTION_ID=${INPROGRESS_OPTION_ID}" >> $GITHUB_ENV
-          echo "INPROGRESS_OPTION_ID=${INPROGRESS_OPTION_ID}" >> $GITHUB_OUTPUT
+          OPTION_IN_PROGRESS_ID=$(gh project field-list ${{ env.PROJECT_NUMBER }} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="In progress") | .id')
+          echo "OPTION_IN_PROGRESS_ID=${OPTION_IN_PROGRESS_ID}" >> $GITHUB_ENV
+          echo "OPTION_IN_PROGRESS_ID=${OPTION_IN_PROGRESS_ID}" >> $GITHUB_OUTPUT
 
-      - name: Get Option ID 2
-        id: get_option_id2
+      - name: Retrieve 'Done' Option ID
+        id: extract_option_done
         run: |
-          DONE_OPTION_ID=$(gh project field-list ${{env.PROJECT_NUMBER}} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="Done") | .id')
-          echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_ENV
-          echo "DONE_OPTION_ID=${DONE_OPTION_ID}" >> $GITHUB_OUTPUT
+          OPTION_DONE_ID=$(gh project field-list ${{ env.PROJECT_NUMBER }} --owner "@me" --format json | jq -r '.fields[] | select(.name=="Status") | .options[] | select(.name=="Done") | .id')
+          echo "OPTION_DONE_ID=${OPTION_DONE_ID}" >> $GITHUB_ENV
+          echo "OPTION_DONE_ID=${OPTION_DONE_ID}" >> $GITHUB_OUTPUT
 
-  move-issue:
+  update-issue-status:
     runs-on: ubuntu-latest
-    needs: get-issue-parameters
+    needs: extract-parameters
     steps:
-      - name: Checkout code
+      - name: Clone Repository
         uses: actions/checkout@v2
 
-      - name: Move Issue to In-Progress
+      - name: Transition Issue to In Progress
         if: contains(github.event.comment.body, 'progress')
         run: |
-          echo "Moving to In-Progress"
-          gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.OPTION_ID1}}
+          echo "Setting issue to In Progress"
+          gh project item-edit --id ${{ needs.extract-parameters.outputs.ISSUE_ID }} --field-id ${{ needs.extract-parameters.outputs.FIELD_ID }} --project-id ${{ needs.extract-parameters.outputs.PROJECT_ID }} --single-select-option-id ${{ needs.extract-parameters.outputs.OPTION_IN_PROGRESS }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Move Issue to Done
-        if: contains(github.event.comment.body, 'Done')
+      - name: Transition Issue to Done
+        if: contains(github.event.comment.body, 'done')
         run: |
-          echo "Moving to Done"
-          gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.OPTION_ID2}}
+          echo "Marking issue as Done"
+          gh project item-edit --id ${{ needs.extract-parameters.outputs.ISSUE_ID }} --field-id ${{ needs.extract-parameters.outputs.FIELD_ID }} --project-id ${{ needs.extract-parameters.outputs.PROJECT_ID }} --single-select-option-id ${{ needs.extract-parameters.outputs.OPTION_DONE }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
