@@ -54,4 +54,4 @@ jobs:
           echo "Moving to In-Progress"
           gh project item-edit --id "${{ env.ISSUE_ID }}" --field-id "${{ env.FIELD_ID }}" --project-id "${{ env.PROJECT_NUMBER }}" --single-select-option-id "${{ env.INPROGRESS_OPTION_ID }}"
         env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
+          GH_TOKEN: ${{ github.token }}
