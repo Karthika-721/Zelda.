@@ -93,3 +93,6 @@ jobs:
           else
             echo "Issue is already in 'In Progress' state."
           fi
+       env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
