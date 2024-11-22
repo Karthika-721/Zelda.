@@ -24,7 +24,7 @@ jobs:
       - name: Get Project Number
         id: get_project
         run: |
-          PROJECT_NUMBER=$(gh project list --format json | jq -r '.projects[] | select(.title=="githubproject") | .number')
+          PROJECT_NUMBER=$(gh project list --format json | jq -r '.projects[] | select(.title=="test workflow") | .number')
           echo "PROJECT_NUMBER=${PROJECT_NUMBER}" >> $GITHUB_ENV
  
       - name: Get Issue URL
@@ -50,7 +50,7 @@ jobs:
       - name: Get Project ID
         id: get_project_id
         run: |
-          PROJECT_ID=$(gh project list --format json | jq -r '.projects[] | select(.title=="github-actions-lab") | .id')
+          PROJECT_ID=$(gh project list --format json | jq -r '.projects[] | select(.title=="test workflow") | .id')
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
           echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_OUTPUT
      
