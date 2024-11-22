@@ -82,6 +82,5 @@ jobs:
           echo "Moving to In-Progress"
           gh project item-edit --id ${{needs.get-issue-parameters.outputs.ISSUE_ID}} --field-id ${{needs.get-issue-parameters.outputs.FIELD_ID}} --project-id ${{needs.get-issue-parameters.outputs.PROJECT_ID}} --single-select-option-id ${{needs.get-issue-parameters.outputs.INPROGRESS_OPTION_ID}}
         env:
-          env:
-            GH_TOKEN: ${{ github.token }}
-            GH_REPO: Karthika-721/test
+          GH_TOKEN: ${{ secrets.TOKEN }}
+          GH_REPO: ${{ github.repository }}
