@@ -1,17 +1,38 @@
-testlabelissues.yml
-# .github/labeler.yml
- 
-# Label for bug-related changes
+name: Auto-Label Issues Based on Description
 
-bug:
+on:
+  issues:
+    types: [opened]
 
-    - '(bug|fix)'
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
 
-enhancement:                            # Label for feature-related changes
+    steps:
+      - name: Add Labels Based on Keywords
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueBody = context.payload.issue.body.toLowerCase();
+            const labels = [];
 
-    - '(feature|new)'
+            // Check for keywords and add corresponding labels
+            if (issueBody.includes('bug')) {
+              labels.push('bug');
+            }
+            if (issueBody.includes('enhancement')) {
+              labels.push('enhancement');
+            }
+            if (issueBody.includes('documentation')) {
+              labels.push('documentation');
+            }
 
-documentation:                         # Label for doc-related changes
-
-    - '(docs|documentation)'
- 
+            // Apply labels if any match
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
