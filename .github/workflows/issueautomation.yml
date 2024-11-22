@@ -87,10 +87,4 @@ jobs:
       echo "Issue is already in 'In Progress' state. No changes needed."
   env:
     GH_TOKEN: ${{ github.token }}
-    GH_REPO: ${{ github.repository }}
-	
-		  
-		  
-
-
-
+    GH_REPO: ${{ github.repository }}	  
