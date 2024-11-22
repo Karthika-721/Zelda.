@@ -1,0 +1,37 @@
+name: Auto Label Issues
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
+
+      - name: Check if the comment contains specific keywords and label the issue
+        run: |
+          # Get the issue number and the comment body
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          COMMENT_BODY="${{ github.event.comment.body }}"
+
+          # Set labels to be applied based on comment content
+          if [[ "$COMMENT_BODY" =~ \bbug\b ]]; then
+            gh issue edit $ISSUE_NUMBER --add-label "bug"
+          fi
+
+          if [[ "$COMMENT_BODY" =~ \bdocumentation\b ]]; then
+            gh issue edit $ISSUE_NUMBER --add-label "documentation"
+          fi
+
+          if [[ "$COMMENT_BODY" =~ \benhancement\b ]]; then
+            gh issue edit $ISSUE_NUMBER --add-label "enhancement"
+          fi
+
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
