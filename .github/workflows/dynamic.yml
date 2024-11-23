@@ -1,0 +1,35 @@
+name: Run HTML Content Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Jest globally (to ensure it can be found)
+        run: npm install -g jest
+ 
+      - name: Fix Jest permissions
+        run: chmod +x ./node_modules/.bin/jest
+ 
+      - name: List installed npm packages
+        run: npm list --depth=0
+ 
+      - name: Run tests with KEYWORDS
+        env:
+          KEYWORDS: "Nintendo" # Replace with desired keyword or set dynamically
+        run: npx jest dynamicZelda.js
