@@ -1,44 +1,12 @@
-name: Auto-Label Issues Based on Description
+name: Test Auto-Label
 
 on:
   issues:
-    types: [opened]  # Trigger on new issue creation
+    types: [opened]
 
 jobs:
   auto-label:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Authenticate with GitHub
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const issueBody = context.payload.issue.body?.toLowerCase() || "";
-            const labelsToAdd = [];
-
-            // Check for keywords and add corresponding labels
-            if (issueBody.includes('bug')) {
-              labelsToAdd.push('bug');
-            }
-            if (issueBody.includes('enhancement')) {
-              labelsToAdd.push('enhancement');
-            }
-            if (issueBody.includes('documentation')) {
-              labelsToAdd.push('documentation');
-            }
-
-            console.log("Issue Body:", issueBody);
-            console.log("Labels to Add:", labelsToAdd);
-
-            // Add labels if any match
-            if (labelsToAdd.length > 0) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                labels: labelsToAdd
-              });
-              console.log("Labels added successfully:", labelsToAdd);
-            } else {
-              console.log("No matching labels found.");
-            }
+      - name: Log Issue Body
+        run: echo "Issue Body: ${{ github.event.issue.body }}"
