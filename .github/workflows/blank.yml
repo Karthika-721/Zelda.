@@ -17,4 +17,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Close issue ID 1 as an example
-          gh issue close 1 --comment "Auto-closing issue due to inactivity or completion."
+          gh issue close I_kwDONS-cO86fzryO --comment "Auto-closing issue due to inactivity or completion."
