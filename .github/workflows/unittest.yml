@@ -20,10 +20,14 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
-        run: |
-          npm install
-
-      - name: Run Jest tests
-        run: |
-          npm test
+      - name: Install Jest globally (to ensure it can be found)
+        run: npm install -g jest
+ 
+      - name: Fix Jest permissions
+        run: chmod +x ./node_modules/.bin/jest
+ 
+      - name: List installed npm packages
+        run: npm list --depth=0
+ 
+      - name: Run tests
+        run: npm test
